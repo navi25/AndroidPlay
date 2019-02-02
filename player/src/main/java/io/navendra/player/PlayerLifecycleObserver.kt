@@ -22,17 +22,17 @@ class PlayerLifecycleObserver(private val player: AndroidPlayer) : LifecycleObse
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause(){
-        player.pausePlayer()
+        player.pause()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume(){
-        player.startPlayer()
+        player.resume()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onStop(){
-        player.stopPlayer()
+        player.stop()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

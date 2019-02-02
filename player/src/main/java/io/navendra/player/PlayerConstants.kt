@@ -1,6 +1,6 @@
 package io.navendra.player
 
-object AppConstants{
+object PlayerConstants{
     const val USER_AGENT = "Navi-Android-Play"
     const val FORMAT_MP3 = "mp3"
     const val FORMAT_MP4 = "mp4"

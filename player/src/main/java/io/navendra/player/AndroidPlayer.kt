@@ -7,13 +7,7 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.dash.DashMediaSource
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import android.content.ContextWrapper
 import android.annotation.SuppressLint
 import android.view.View
@@ -23,10 +17,11 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
 
     private var player : ExoPlayer? = null
     private var playbackPosition :Long = 0
-    private var currentWindow: Int =0
+    private var currentWindowIndex: Int =0
     private var playWhenReady: Boolean = true
 
     private var currUri:Uri? = null
+    private var currUriList: Array<Uri>? = null
 
     private val lifecycleObserver = PlayerLifecycleObserver(this)
 
@@ -39,71 +34,67 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
 
     }
 
-
-    fun play(uri: Uri){
+    //Play single video
+    fun play(uri: Uri?){
+        if(uri == null) return
         currUri = uri
         initPlayer()
         preparePlayer(currUri!!)
-        player?.playWhenReady = true
         hideSystemUi()
-
     }
 
 
+    //Overloaded function to play the whole playlist
+    fun play(uriList : Array<Uri>?){
+        if(uriList == null) return
+        currUriList = uriList
+        initPlayer()
+        preparePlayer(currUriList!!)
+        hideSystemUi()
+    }
 
-     private fun initPlayer(){
+    private fun initPlayer(){
         if(player == null){
-
             player = ExoPlayerFactory.newSimpleInstance(
                 DefaultRenderersFactory(context), DefaultTrackSelector(), DefaultLoadControl()
-            ).apply {
-                playWhenReady = true
-                playWhenReady = playWhenReady
-                seekTo(currentWindow, playbackPosition)
-            }
-
+            )
+            loadState()
             playerView.player = player
-
+        }else{
+            loadState()
         }
     }
 
+    //Build MediaSource for one video and prepare player
     private fun preparePlayer(uri: Uri){
-        val mediaSource = buildMediaSource(uri)
+        val mediaSource = MediaSourceBuilder().build(uri)
         player?.prepare(mediaSource, true, false)
     }
 
+    //Overloaded function to build MediaSource for whole playlist and prepare player
+    private fun preparePlayer(uriList: Array<Uri>){
+        val mediaSource = MediaSourceBuilder().build(uriList)
+        player?.prepare(mediaSource, true, false)
+    }
 
-    private fun buildMediaSource(uri: Uri) : MediaSource {
-        val userAgent = AppConstants.USER_AGENT
-        val lastPath = uri.lastPathSegment?:""
-
-        val defaultHttpDataSourceFactory = DefaultHttpDataSourceFactory(userAgent)
-
-        if(lastPath.contains(AppConstants.FORMAT_MP3) || lastPath.contains(AppConstants.FORMAT_MP4)){
-
-            return ExtractorMediaSource.Factory(defaultHttpDataSourceFactory)
-                .createMediaSource(uri)
-
-        }else if(lastPath.contains(AppConstants.FORMAT_M3U8)){
-
-            return HlsMediaSource.Factory(defaultHttpDataSourceFactory)
-                .createMediaSource(uri)
-
-        }else{
-            val dashChunkSourceFactory = DefaultDashChunkSource.Factory(defaultHttpDataSourceFactory)
-
-            return DashMediaSource.Factory(dashChunkSourceFactory, defaultHttpDataSourceFactory)
-                .createMediaSource(uri)
-
+    private fun saveState(){
+        if (player != null) {
+            playbackPosition = player?.currentPosition ?: 0L
+            currentWindowIndex = player?.currentWindowIndex ?: 0
+            playWhenReady = player?.playWhenReady ?: true
         }
+    }
 
+    private fun loadState(){
+        player!!.apply {
+            playWhenReady = playWhenReady
+            seekTo(currentWindowIndex, playbackPosition)
+        }
     }
 
     private fun releasePlayer() {
         if (player != null) {
-            playbackPosition = player?.currentPosition ?: 0L
-            currentWindow = player?.currentWindowIndex ?: 0
-            playWhenReady = player?.playWhenReady ?: true
+            saveState()
             player?.release()
             player = null
         }
@@ -111,22 +102,33 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
 
 
     //region Handle Lifecycle
-    fun startPlayer() {
+
+    fun start() {
         player?.playWhenReady = true
         player?.playbackState
-        play(currUri!!)
+        currUri?: play(currUri)
+        currUriList?: play(currUriList)
     }
 
-    fun pausePlayer() {
-//        releasePlayer()
+    fun resume(){
+        player?.playWhenReady = true
+        currUri?: play(currUri)
+        currUriList?: play(currUriList)
+        loadState()
+    }
+
+    fun pause() {
         player?.playWhenReady = false
         player?.playbackState
-
+        saveState()
     }
 
-    fun stopPlayer(){
+    fun stop(){
         releasePlayer()
+        player?.stop(true)
     }
+
+    //endregion
 
     @SuppressLint("InlinedApi")
     private fun hideSystemUi() {
