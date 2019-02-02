@@ -31,9 +31,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
     //Exoplayer
-    implementation "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
-    implementation "com.google.android.exoplayer:exoplayer-dash:$exoPlayerVersion"
-    implementation "com.google.android.exoplayer:exoplayer-ui:$exoPlayerVersion"
+    implementation "com.google.android.exoplayer:exoplayer:$exoPlayerVersion"
 
 
     testImplementation 'junit:junit:4.12'
