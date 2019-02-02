@@ -1,4 +1,4 @@
-package io.navendra.androidplay
+package io.navendra.player
 
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
@@ -13,20 +13,13 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import android.content.ContextWrapper
-import android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-import android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-import android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE
 import android.annotation.SuppressLint
 import android.view.View
 
 
-class PlayerOne(private var context: Context, private val playerView: PlayerView){
+class AndroidPlayer(private var context: Context, private val playerView: PlayerSurface){
 
     private var player : ExoPlayer? = null
     private var playbackPosition :Long = 0
@@ -69,7 +62,7 @@ class PlayerOne(private var context: Context, private val playerView: PlayerView
                 seekTo(currentWindow, playbackPosition)
             }
 
-            playerView?.player = player
+            playerView.player = player
 
         }
     }
@@ -118,7 +111,6 @@ class PlayerOne(private var context: Context, private val playerView: PlayerView
 
 
     //region Handle Lifecycle
-
     fun startPlayer() {
         player?.playWhenReady = true
         player?.playbackState

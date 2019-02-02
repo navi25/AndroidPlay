@@ -1,10 +1,10 @@
-package io.navendra.androidplay
+package io.navendra.player
 
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 
-class PlayerLifecycleObserver(private val player: PlayerOne) : LifecycleObserver{
+class PlayerLifecycleObserver(private val player: AndroidPlayer) : LifecycleObserver{
 
     fun registerLifecycle(lifecycle: Lifecycle){
         lifecycle.addObserver(this)
