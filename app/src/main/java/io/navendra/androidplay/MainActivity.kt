@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private var playSingleVideo = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -15,8 +17,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-//        val uri = Uri.parse( "https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
-//        playVideo(uri)
+        startDemoOfAndroidPlayer()
+    }
+
+    private fun startDemoOfAndroidPlayer(){
+        val uri = Uri.parse( "https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
 
         val uriList = arrayOf<Uri>(
             Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
@@ -24,7 +29,12 @@ class MainActivity : AppCompatActivity() {
             Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
             Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
         )
-        playVideoList(uriList)
+
+        if(playSingleVideo){
+            playVideo(uri)
+        }else{
+            playVideoList(uriList)
+        }
     }
 
     private fun playVideo(uri: Uri){
