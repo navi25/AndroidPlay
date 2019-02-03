@@ -14,12 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
 import com.google.android.exoplayer2.source.ads.AdsMediaSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 
 
 class AndroidPlayer(private var context: Context, private val playerView: PlayerSurface,
