@@ -23,16 +23,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startDemoOfAndroidPlayer(){
-        val uri = Uri.parse( "https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
-        val adUri = Uri.parse("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&amp;iu=/124319096/external/ad_rule_samples&amp;ciu_szs=300x250&amp;ad_rule=1&amp;impl=s&amp;gdfp_req=1&amp;env=vp&amp;output=vmap&amp;unviewed_position_start=1&amp;cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpostoptimizedpodbumper&amp;cmsid=496&amp;vid=short_onecue&amp;correlator=")
+        val uri = Uri.parse(AppConstants.VIDEO_URL)
+        val adUri = Uri.parse(AppConstants.AD_URL)
 
-        val uriList = arrayOf<Uri>(
-            Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
-            Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
-            Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"),
-            Uri.parse("https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
-        )
-
+        val uriList = arrayOf<Uri>(uri,uri,uri,uri)
 
         when(playMode){
             PlayMode.SINGLE_VIDEO -> playVideo(uri)
