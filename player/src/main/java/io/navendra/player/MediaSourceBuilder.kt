@@ -4,6 +4,7 @@ import android.net.Uri
 import com.google.android.exoplayer2.source.DynamicConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ads.AdsMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -44,6 +45,8 @@ class MediaSourceBuilder {
         uriList.forEach { playlistMediaSource.addMediaSource(build(it)) }
         return playlistMediaSource
     }
+
+
 
 
 

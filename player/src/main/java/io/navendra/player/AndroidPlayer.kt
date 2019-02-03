@@ -11,17 +11,29 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import android.content.ContextWrapper
 import android.annotation.SuppressLint
 import android.view.View
+import android.view.ViewGroup
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader
+import com.google.android.exoplayer2.source.ads.AdsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.LoadControl
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView
 
 
-class AndroidPlayer(private var context: Context, private val playerView: PlayerSurface){
+class AndroidPlayer(private var context: Context, private val playerView: PlayerSurface,
+                    private var adView: ViewGroup? = null){
 
     private var player : ExoPlayer? = null
     private var playbackPosition :Long = 0
     private var currentWindowIndex: Int =0
     private var playWhenReady: Boolean = true
-
     private var currUri:Uri? = null
     private var currUriList: Array<Uri>? = null
+
+
+    private var imaAdsLoader: ImaAdsLoader? = null
 
     private val lifecycleObserver = PlayerLifecycleObserver(this)
 
@@ -31,7 +43,7 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
             context = (context as ContextWrapper).baseContext
         }
         lifecycleObserver.registerLifecycle((context as LifecycleOwner).lifecycle)
-
+        adView = (playerView).overlayFrameLayout
     }
 
     //Play single video
@@ -52,6 +64,44 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
         preparePlayer(currUriList!!)
         hideSystemUi()
     }
+
+
+    fun playWithAds(uri:Uri, adUri: Uri){
+        initPlayerWithAd()
+        imaAdsLoader = ImaAdsLoader(context,adUri)
+        preparePlayerWithAds(uri,adUri)
+    }
+
+    fun initPlayerWithAd(){
+        val loadControl = DefaultLoadControl(
+            DefaultAllocator(true, 16),
+            VideoPlayerConfig.MIN_BUFFER_DURATION,
+            VideoPlayerConfig.MAX_BUFFER_DURATION,
+            VideoPlayerConfig.MIN_PLAYBACK_START_BUFFER,
+            VideoPlayerConfig.MIN_PLAYBACK_RESUME_BUFFER,
+            VideoPlayerConfig.bufferForPlaybackAfterRebufferMs,
+            true
+        )
+        player = ExoPlayerFactory.newSimpleInstance(
+            DefaultRenderersFactory(context),
+            DefaultTrackSelector(),
+            loadControl
+        )
+        loadState()
+        playerView.player = player
+    }
+
+    private fun preparePlayerWithAds(uri:Uri, adUri: Uri){
+        val contentMediaSource = MediaSourceBuilder().build(uri)
+        val adsDataFactory = DefaultHttpDataSourceFactory(PlayerConstants.USER_AGENT)
+
+        val mediaSourceWithAds = AdsMediaSource(contentMediaSource,adsDataFactory,imaAdsLoader!!,adView!!)
+
+        player?.seekTo(playbackPosition)
+        player?.prepare(mediaSourceWithAds)
+        player?.playWhenReady = true
+    }
+
 
     private fun initPlayer(){
         if(player == null){
@@ -125,6 +175,7 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
 
     fun stop(){
         releasePlayer()
+        imaAdsLoader?.release()
         player?.stop(true)
     }
 
@@ -138,6 +189,21 @@ class AndroidPlayer(private var context: Context, private val playerView: Player
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+    }
+
+    internal object VideoPlayerConfig {
+        //Minimum Video you want to buffer while Playing
+        val MIN_BUFFER_DURATION = 25000
+        //Max Video you want to buffer during PlayBack
+        val MAX_BUFFER_DURATION = 30000
+        //Min Video you want to buffer before start Playing it
+        val MIN_PLAYBACK_START_BUFFER = 10000
+        //Min video You want to buffer when user resumes video
+        val MIN_PLAYBACK_RESUME_BUFFER = 10000
+
+        val bufferForPlaybackAfterRebufferMs = 10000
+        //Video Url
+        val VIDEO_URL = "http://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_30mb.mp4"
     }
 
 }
